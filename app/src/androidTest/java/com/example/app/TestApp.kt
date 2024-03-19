@@ -1,14 +1,13 @@
-package com.example.kointest
+package com.example.app
+
 import android.app.Application
-import org.koin.android.ext.koin.androidContext
+import com.example.kointest.appModule
 import org.koin.core.context.startKoin
 
-class MyApplication : Application() {
+class TestApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-
         startKoin {
-            androidContext(this@MyApplication)
             modules(appModule)
         }
     }

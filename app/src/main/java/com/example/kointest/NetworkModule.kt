@@ -1,18 +1,16 @@
 package com.example.kointest
 
-import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import org.koin.dsl.module
 
-val retrofitModule = module {
-    single {
-        val client = OkHttpClient.Builder().build()
-        Retrofit.Builder()
-            .baseUrl("https://dummyjson.com/") // Base URL for your API
-            .client(client)
+object ApiClient {
+    private const val BASE_URL = "https://dummyjson.com/"
+
+    fun create(): ProductService {
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+        return retrofit.create(ProductService::class.java)
     }
-    single { get<Retrofit>().create(ProductService::class.java) }
 }
