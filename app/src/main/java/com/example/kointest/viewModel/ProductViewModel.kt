@@ -3,8 +3,12 @@ package com.example.kointest.viewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.kointest.repo.ProductRepository
+import androidx.lifecycle.viewModelScope
+import com.example.kointest.ApiClient
+import com.example.kointest.ProductService
+
 import com.example.kointest.data.Product
+import com.example.kointest.repo.ProductRepository
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 
@@ -17,15 +21,20 @@ class ProductViewModel(private val productRepository: ProductRepository) : ViewM
     }
 
     fun fetchProduct() {
-        GlobalScope.launch {
-            val response = productRepository.getproduct()
-            if (response.isSuccessful) {
-                _product.postValue(response.body())
-            } else {
-                // Handle error
-                println("Error: ${response.errorBody()}")
+        viewModelScope.launch {
+            try {
+                val response = productRepository.getproduct()
+                if (response.isSuccessful) {
+                    _product.postValue(response.body())
+                } else {
+                    println("Error: ${response.errorBody()}")
+                }
+            } catch (e: Exception) {
+                println("Error: ${e.message}")
             }
         }
+    }    fun getProducts(): LiveData<Product> {
+        return product
     }
 }
 

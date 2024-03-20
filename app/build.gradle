@@ -1,6 +1,17 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'jacoco'
+}
+jacoco {
+    toolVersion = '0.8.11'
+    reportsDirectory = layout.buildDirectory.dir('customJacocoReportDir')
+
+}
+
+tasks.withType(Test) {
+    jacoco.includeNoLocationClasses = true
+    jacoco.excludes = ['jdk.internal.*']
 }
 
 android {
@@ -14,7 +25,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "com.example.app.InstrumentationTestRunner"
+        testInstrumentationRunner "com.example.app.Runner"
     }
 
     buildTypes {
@@ -34,8 +45,71 @@ android {
         viewBinding true
     }
     testOptions {
+
+        unitTests.returnDefaultValues = true
         animationsDisabled = true
+        unitTests.all {
+            jacoco {
+                includeNoLocationClasses = true
+                setIgnoreFailures(true)
+            }
+        }
     }
+    task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest', 'createDebugCoverageReport']) {
+        group = "Reporting"
+        description = "Generate JaCoCo coverage reports"
+
+        def fileFilter = [
+                '**/R.class',
+                '**/R$*.class',
+                '**/Manifest*.*',
+                '**/BuildConfig.*',
+                'android/**/*.*',
+                'android/**/*.*',
+                'androidx/**/*.*',
+                'com/android/**/*.*',
+                'com/google/**/*.*',
+                'com/example/**/*.*',
+                'com/example/viewmodels/**/*.*',
+                "src/main/res/**/*.*",
+                "src/main/assets/**/*.*",
+        ]
+
+        def javaTree = fileTree(dir: "$project.buildDir/intermediates/javac/debug/classes", excludes: fileFilter)
+        def kotlinTree = fileTree(dir: "$project.buildDir/tmp/kotlin-classes", excludes: fileFilter)
+        classDirectories.from = files([javaTree, kotlinTree])
+        sourceDirectories.setFrom files([javaTree, kotlinTree])
+        executionData.setFrom fileTree(dir: project.buildDir, includes: [
+                'jacoco/testDebugUnitTest.exec',
+                'outputs/code-coverage/connected/*coverage.ec'
+        ])
+
+        reports {
+            html.destination = file("$buildDir/reports/jacoco/koin")
+            xml.destination = file("$buildDir/reports/jacoco/koin.xml")
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            shrinkResources false
+            debuggable false
+
+
+        }
+        debug {
+            applicationIdSuffix '.dev'
+            minifyEnabled false
+            testCoverageEnabled true
+            shrinkResources false
+            debuggable true
+
+        }
+
+    }
+
+
 }
 
 dependencies {

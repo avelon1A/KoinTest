@@ -1,78 +1,68 @@
-import com.example.kointest.ProductService
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.example.kointest.data.Product
 import com.example.kointest.repo.ProductRepository
-import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import com.example.kointest.viewModel.ProductViewModel
+import com.nhaarman.mockitokotlin2.whenever
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.setMain
+import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
-import org.mockito.ArgumentCaptor
-import org.mockito.Captor
-import org.mockito.Mock
-import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.verify
-import org.mockito.MockitoAnnotations
-import retrofit2.Call
-import retrofit2.Callback
 import retrofit2.Response
 
-class ProductRepositoryTest {
+@ExperimentalCoroutinesApi
+class ProductViewModelTest {
 
-    @Mock
-    lateinit var productService: ProductService
+    @get:Rule
+    val instantTaskExecutorRule = InstantTaskExecutorRule()
 
-    lateinit var productRepository: ProductRepository
-
-    @Captor
-    lateinit var callbackCaptor: ArgumentCaptor<Callback<Product>>
+    private lateinit var viewModel: ProductViewModel
+    private lateinit var repository: ProductRepository
+    private val testDispatcher = TestCoroutineDispatcher()
 
     @Before
-    fun setUp() {
-        MockitoAnnotations.initMocks(this)
-        productRepository = ProductRepository(productService)
+    fun setup() {
+        Dispatchers.setMain(testDispatcher)
+
+        repository = mock(ProductRepository::class.java)
+        viewModel = ProductViewModel(repository)
     }
 
+    @After
+    fun cleanup() {
+        Dispatchers.resetMain()
+        testDispatcher.cleanupTestCoroutines()
+    }
     @Test
-    fun `test getProduct success`() {
+    fun `fetchProduct should update LiveData with product data`() {
+        // Mock data
         val product = Product(
             id = 1,
-            title = "Test Product",
-            description = "Test Description",
-            price = 99.99,
+            title = "iPhone 9",
+            description = "Detailed description",
+            price = 19.99,
             discountPercentage = 0.0,
-            rating = 4.5,
+            rating = 4.2,
             stock = 10,
-            brand = "Test Brand",
-            category = "Test Category",
-            thumbnail = "Test Thumbnail",
-            images = listOf("Image 1", "Image 2")
+            brand = "Apple",
+            category = "Smartphone",
+            thumbnail = "thumbnail_url",
+            images = listOf("image_url1", "image_url2")
         )
-
-        val call = mock(Call::class.java) as Call<Product>
-        `when`(productService.getProduct()).thenReturn(call)
-
-        productRepository.getProduct { fetchedProduct, error ->
-            assertEquals(product, fetchedProduct)
-            assertEquals(null, error)
+        val response = Response.success(product)
+        runBlocking {
+            whenever(repository.getproduct()).thenReturn(response)
         }
-
-        verify(call).enqueue(callbackCaptor.capture())
-        callbackCaptor.value.onResponse(call, Response.success(product))
+        viewModel.fetchProduct()
+        val observedProduct = viewModel.product.value
+        assert(observedProduct != null)
+        assert(observedProduct!!.id == product.id)
+        assert(observedProduct.title == product.title)
     }
-
-    @Test
-    fun `test getProduct failure`() {
-        val errorMessage = "Failed to fetch product"
-        val call = mock(Call::class.java) as Call<Product>
-        `when`(productService.getProduct()).thenReturn(call)
-
-        productRepository.getProduct { fetchedProduct, error ->
-            assertEquals(null, fetchedProduct)
-            assertTrue(error?.startsWith(errorMessage) ?: false)
-        }
-
-        verify(call).enqueue(callbackCaptor.capture())
-        callbackCaptor.value.onFailure(call, Throwable(errorMessage))
-    }
-
 }

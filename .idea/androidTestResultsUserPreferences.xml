@@ -54,7 +54,51 @@
                   <entry key="OPPO&#10; CPH1911" value="120" />
                   <entry key="Tests" value="360" />
                   <entry key="WSAU897SB6UCNJYS" value="120" />
+                  <entry key="android11" value="120" />
                   <entry key="mod" value="120" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
+        <entry key="372316638">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="OPPO&#10; CPH1911" value="120" />
+                  <entry key="Tests" value="360" />
+                  <entry key="WSAU897SB6UCNJYS" value="120" />
+                  <entry key="android11" value="120" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
+        <entry key="690699426">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="OPPO&#10; CPH1911" value="120" />
+                  <entry key="Tests" value="360" />
+                  <entry key="WSAU897SB6UCNJYS" value="120" />
+                  <entry key="mod" value="120" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
+        <entry key="1291030031">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="Tests" value="360" />
+                  <entry key="android11" value="120" />
                 </map>
               </option>
             </AndroidTestResultsTableState>
